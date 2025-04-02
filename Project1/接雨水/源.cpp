@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<math.h>
+#include<iostream>
 /*给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。*/
 #define Maxstk 999
 
@@ -27,4 +28,12 @@ int trap(int* height, int heightSize)
         stk[top++] = i; // 将当前柱子的索引入栈
     }
     return ans; // 返回最终结果
+}
+
+int main()
+{
+    int* height[10];
+    int heightSize = 10;
+    int trap(int* height, int heightSize);
+    return 0;
 }
