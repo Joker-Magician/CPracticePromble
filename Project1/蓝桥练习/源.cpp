@@ -431,3 +431,339 @@ S = M * (n + 1) - p * (1 + 2 + 3 + ··· + M)后面的 (1 + 2 + ··· + M) 不
 //
 //    return 0;
 //}
+
+//#include <iostream>
+//#include <vector>
+//
+//using namespace std;
+//
+//int main() {
+//    ios::sync_with_stdio(false);
+//    cin.tie(nullptr);
+//
+//    int n, m;
+//    cin >> n >> m;
+//
+//    // 1. 物理容量：防崩溃的底层大数组，写死 40005
+//    const int SAFE_SIZE = 40005;
+//    vector<bool> has_A(SAFE_SIZE, false);
+//    vector<bool> has_B(SAFE_SIZE, false);
+//
+//    for (int i = 0; i < n; i++) {
+//        int val;
+//        cin >> val;
+//        has_A[val] = true;
+//    }
+//    for (int i = 0; i < m; i++) {
+//        int val;
+//        cin >> val;
+//        has_B[val] = true;
+//    }
+//
+//    // 2. 逻辑上限：这道题真正允许的 S 的最大值
+//    int limit = n + m;
+//
+//    // 3. 制作素数表，只需要做到 limit 就可以了（省时间）
+//    vector<bool> is_prime(limit + 1, true);
+//    // 注意处理一下边界情况，如果 limit < 2，直接就是 0 种魔法
+//    if (limit >= 0) is_prime[0] = false;
+//    if (limit >= 1) is_prime[1] = false;
+//
+//    for (int i = 2; i <= limit; i++) {
+//        if (is_prime[i] == true) {
+//            for (long long j = (long long)i * i; j <= limit; j += i) {
+//                is_prime[j] = false;
+//            }
+//        }
+//    }
+//
+//    int cnt = 0;
+//
+//    // 4. 逆向枚举 S，严格遵守题目约束，只跑到 limit！
+//    for (int S = 2; S <= limit; S++) {
+//        if (!is_prime[S]) continue;
+//
+//        for (int x = 1; x < S; x++) {
+//            if (has_A[x] == true && has_B[S - x] == true) {
+//                cnt++;
+//                break;
+//            }
+//        }
+//    }
+//
+//    cout << cnt << '\n';
+//
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <vector>
+//
+//int main()
+//{
+//	int n;
+//	std::cin >> n;
+//
+//	std::vector<bool> is_prime(n + 1, true);
+//	is_prime[0] = false;
+//	is_prime[1] = false;
+//
+//	for (int i = 2; i <= n; i++) {
+//		if (is_prime[i] == true) {
+//			for (long long j = (long long)i * i; j <= n; j += i) {
+//				is_prime[j] = false;
+//			}
+//		}
+//	}
+//
+//	for (int i = 2; i <= n; i++) {
+//		if (is_prime[i] != true) continue;
+//		for (int j = 2; j <= n; j++) {
+//			if (is_prime[j] != true) continue;
+//			int k = n - i - j;
+//			if (k >=2 && is_prime[k] == true) {
+//				std::cout << i << " " << j << " " << n - i - j;
+//				return 0;
+//			}
+//		}
+//	}
+//
+//	return 0;
+//}
+
+//#include <iostream>
+//#include <vector>
+//#include <cmath>
+//#include <algorithm> // 为了使用 max 函数
+//
+//using namespace std;
+//
+//int main() {
+//    // 提速黑魔法
+//    ios::sync_with_stdio(false);
+//    cin.tie(nullptr);
+//
+//    // 必须全部用 long long，防止各种奇怪的溢出
+//    long long L, R;
+//    if (!(cin >> L >> R)) return 0;
+//
+//    // --- 第 1 步：找出 2 到 sqrt(R) 内的所有素数 ---
+//    long long limit = sqrt(R) + 1;
+//    vector<bool> is_small_prime(limit + 1, true);
+//    vector<long long> small_primes; // 用一个专门的盒子把小素数存起来
+//
+//    is_small_prime[0] = false;
+//    is_small_prime[1] = false;
+//    for (long long i = 2; i <= limit; i++) {
+//        if (is_small_prime[i] == true) {
+//            small_primes.push_back(i); // 存入盒子
+//            for (long long j = i * i; j <= limit; j += i) {
+//                is_small_prime[j] = false;
+//            }
+//        }
+//    }
+//
+//    // --- 第 2 步：只筛 [L, R] 这个小区间 ---
+//    // 这个数组只有 100万 的大小，绝对不会 MLE！
+//    // 下标 i 代表真实的数字 L + i
+//    vector<bool> is_prime_LR(R - L + 1, true);
+//
+//    for (long long p : small_primes) {
+//        // 数学难点：找到大于等于 L 的最小的 p 的倍数！
+//        // 比如 L=10, p=3，我们要找到 12。公式是 ((L + p - 1) / p) * p
+//        // 同时，划掉的倍数必须至少是 p 的 2 倍，不能把素数 p 本身划掉！
+//        long long start = max(2LL * p, ((L + p - 1) / p) * p);
+//
+//        // 开始精准打击，每次步长为 p
+//        for (long long j = start; j <= R; j += p) {
+//            is_prime_LR[j - L] = false; // 把真实数字 j 映射到数组下标 j - L
+//        }
+//    }
+//
+//    // --- 第 3 步：统计答案 ---
+//    // 唯一的特判：如果 L 是 1，1 不是素数，手动划掉
+//    if (L == 1) {
+//        is_prime_LR[0] = false;
+//    }
+//
+//    int cnt = 0;
+//    for (long long i = 0; i <= R - L; i++) {
+//        if (is_prime_LR[i] == true) {
+//            cnt++;
+//        }
+//    }
+//
+//    cout << cnt << '\n';
+//
+//    return 0;
+//}
+
+///欧拉筛法：任何一个合数，只能被它自己的『最小质因数』划掉一次
+//#include <iostream>
+//#include <vector>
+//
+//using namespace std;
+//
+//int main() {
+//    int n;
+//    cin >> n;
+//
+//    vector<bool> is_prime(n + 1, true);
+//    is_prime[0] = false;
+//    is_prime[1] = false;
+//
+//    // 专门准备一个“素数档案馆”，用来存放目前找到的所有素数
+//    vector<int> primes;
+//
+//    // 外层循环：必须老老实实从 2 走到 n (不能是 sqrt(n) 了！)
+//    for (int i = 2; i <= n; i++) {
+//
+//        // 1. 如果 i 没被划掉，那它就是素数，立刻收录进档案馆
+//        if (is_prime[i]) {
+//            primes.push_back(i);
+//        }
+//
+//        // 2. 遍历档案馆里目前已知的所有素数
+//        for (int j = 0; j < primes.size(); j++) {
+//            int p = primes[j]; // 拿出一个素数 p
+//
+//            // 如果 i 和 p 乘起来已经超过范围了，直接结束内层循环
+//            if (1LL * i * p > n) break;
+//
+//            // 划掉合数：用当前的数 i，乘以档案馆里的素数 p
+//            is_prime[i * p] = false;
+//
+//            // 欧拉筛的灵魂！！！如果 i 能被 p 整除，立刻停止！
+//            if (i % p == 0) {
+//                break;
+//            }
+//        }
+//    }
+//
+//    cout << "找到素数个数: " << primes.size() << '\n';
+//    return 0;
+//}
+
+//#include <iostream>
+//#include <vector>
+//#include <algorithm>
+//
+//int main() {
+//	int N, M;
+//	std::cin >> N  >> M;
+//
+//	std::vector<int> spf(M + 1);
+//
+//	for (int i = 2; i <= M; i++) {
+//		spf[i] = i;
+//	}
+//
+//	for (int i = 2; i * i <= M; i++) {
+//		if (spf[i] == i) {
+//			for (long long j = i * i; j <= M; j += i) {
+//				if (spf[j] == j) {
+//					spf[j] = i;
+//				}
+//			}
+//		}
+//	}
+//	
+//	std::vector<int> cnt(M + 1, 0);
+//	int max_cnt = 0;
+//
+//	for (int i = 2; i <= M; i++) {
+//		cnt[i] = cnt[i / spf[i]] + 1;
+//		if (i >= N) {
+//			max_cnt = std::max(max_cnt, cnt[i]);
+//		}
+//	}
+//
+//	std::cout << max_cnt;
+//
+//	return 0;
+//}
+
+#include <iostream>
+#include <vector>
+#include <cmath>
+
+using namespace std;
+
+const int MAXP = 4000;
+vector<int> primes;
+bool is_prime[MAXP + 1];
+
+// 预处理 4000 以内的素数（埃氏筛法）
+void init_primes() {
+    fill(is_prime, is_prime + MAXP + 1, true);
+    is_prime[0] = is_prime[1] = false;
+    for (int i = 2; i <= MAXP; i++) {
+        if (is_prime[i]) {
+            primes.push_back(i);
+            for (int j = i * i; j <= MAXP; j += i) {
+                is_prime[j] = false;
+            }
+        }
+    }
+}
+
+// 检查是否为完全平方数（注意精度，使用 long double 版的 sqrtl）
+bool is_sqr(long long n) {
+    long long r = round(sqrtl(n));
+    return r * r == n;
+}
+
+// 检查是否为完全立方数
+bool is_cub(long long n) {
+    long long r = round(cbrtl(n));
+    return r * r * r == n;
+}
+
+void solve() {
+    long long a;
+    cin >> a;
+
+    // 第一步：用 4000 以内的质数去扒它
+    for (int p : primes) {
+        if (a % p == 0) {
+            int count = 0;
+            // 把这个质数 p 剥干净，并数一下有几个
+            while (a % p == 0) {
+                a /= p;
+                count++;
+            }
+            // 只要发现某个质因数只有 1 个，直接没救，输出 no
+            if (count == 1) {
+                cout << "no\n";
+                return;
+            }
+        }
+    }
+
+    // 第二步：判断剩下的部分
+    if (a == 1) {
+        cout << "yes\n";
+    }
+    else if (is_sqr(a) || is_cub(a)) {
+        cout << "yes\n"; // 剩下的是完全平方或完全立方，也行得通
+    }
+    else {
+        cout << "no\n";  // 否则必定藏着指数为 1 的质数
+    }
+}
+
+int main() {
+    // 算法竞赛起手式：解除输入输出绑定，大幅提升 cin/cout 速度
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    init_primes(); // 提前准备好子弹（素数表）
+
+    int T;
+    if (cin >> T) {
+        while (T--) {
+            solve();
+        }
+    }
+    return 0;
+}
