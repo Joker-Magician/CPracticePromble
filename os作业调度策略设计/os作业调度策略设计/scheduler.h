@@ -1,13 +1,6 @@
 #pragma once
-
-#include <iostream>
-#include <algorithm>
-#include <cmath>
-#include <iomanip>
-#include <limits>
 #include <string>
 #include <vector>
-
 
 struct Job {
 	std::string name;				// 作业名
@@ -26,17 +19,6 @@ struct Job {
 	Job();
 };
 
-// 显示与输入输出
-void showMenu();
-void inputJobs(std::vector<Job>& jobs);
-void showOriginalJobs(const std::vector<Job>& jobs);
-
-// 三种作业调度算法
 std::vector<Job> FCFS(std::vector<Job> jobs);
 std::vector<Job> SJF(std::vector<Job> jobs);
 std::vector<Job> HRRN(std::vector<Job> jobs);
-
-// 结果输出
-void printGanttChart(const std::vector<Job>& result);
-void printResult(const std::vector<Job>& result, const std::string& algorithmName);
-void compareAlgorithms(const std::vector<Job>& jobs);

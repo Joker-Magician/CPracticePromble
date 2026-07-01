@@ -1,4 +1,4 @@
-#include "module.h"
+#include "ui.h"
 
 int main() {
 	std::vector<Job> jobs;
@@ -29,7 +29,7 @@ int main() {
 			break;
 		case 5:
 			if (jobs.empty()) std::cout << "当前没有作业信息，请先输入作业。" << std::endl;
-			printResult(HRRN(jobs), "HRRN 最高响应比优先");
+			else printResult(HRRN(jobs), "HRRN 最高响应比优先");
 			break;
 		case 6:
 			compareAlgorithms(jobs); break;
